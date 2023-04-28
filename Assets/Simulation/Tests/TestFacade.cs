@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
+using Simulation.Facade;
 
-public class FacadeTest
+public class TestFacade
 {
     [Test]
     public void FacadeTestSimplePasses()
