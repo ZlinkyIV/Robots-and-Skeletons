@@ -1,18 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Simulation.Facade;
 
-public class EntityBehaviors : MonoBehaviour
+namespace Simulation.Behaviors
 {
-    // Start is called before the first frame update
-    void Start()
+    public interface IEntityBehavior
     {
-        
-    }
+        public void OnSpawn(OnEntitySpawnArgs args, EntityActions actions);
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        public void OnDestroy(OnEntityDestroyArgs args, EntityActions actions);
+
+        public void OnDamage(OnEntityDamageArgs args, EntityActions actions);
+
+        public void OnHeal(OnEntityHealArgs args, EntityActions actions);
     }
 }
