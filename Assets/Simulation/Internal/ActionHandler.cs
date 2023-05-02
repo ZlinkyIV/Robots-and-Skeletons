@@ -4,48 +4,54 @@ namespace Simulation.Internal
 {
     public static class ActionHandler
     {
-        private static List<KeyValuePair<Entity, int>> healthChangesQueue = new();
-        private static List<SpawnEntityRequest> spawnQueue = new();
+        private static List<EntityHealDamageDetails> healthChangesQueue = new();
+        private static List<EntitySpawnRequest> spawnQueue = new();
+        private static List<EntityDestroyDetails> destroyQueue = new();
 
         private static Dictionary<Entity, int> compiledHealthChanges = new();
 
+
+        public static void SpawnEntity(EntitySpawnRequest details) => spawnQueue.Add(details);
+        public static void DestroyEntity(EntityDestroyDetails details) => destroyQueue.Add(details);
+        public static void HealDamageEntity(EntityHealDamageDetails details) => healthChangesQueue.Add(details);
+
+
         public static void EnforceChanges()
         {
-            CompileHealthChangesQueue();
+            CompileHealthChanges();
 
+            ExcecuteDestroyQueue();
             ExcecuteSpawnQueue();
             ExcecuteCompiledHealthChanges();
         }
 
-        public static void SpawnEntity(SpawnEntityRequest request)
-        {
-            spawnQueue.Add(request);
-        }
 
-        public static void HealDamage(Entity entity, int amount)
+        private static void CompileHealthChanges()
         {
-            healthChangesQueue.Add(new KeyValuePair<Entity, int>(entity, amount));
-        }
-
-
-        private static void CompileHealthChangesQueue()
-        {
-            foreach (var keyValuePair in healthChangesQueue)
+            foreach (var d in healthChangesQueue)
             {
-                Entity entity = keyValuePair.Key;
-                int amount = keyValuePair.Value;
-
                 try
                 {
-                    compiledHealthChanges[entity] += amount;
+                    compiledHealthChanges[d.entity] += d.amount;
                 }
                 catch (KeyNotFoundException)
                 {
-                    compiledHealthChanges[entity] = amount;
+                    compiledHealthChanges[d.entity] = d.amount;
                 }
             }
 
             healthChangesQueue.Clear();
+        }
+
+
+        private static void ExcecuteDestroyQueue()
+        {
+            foreach (var request in destroyQueue)
+            {
+                EntityManager.Destroy(request);
+            }
+
+            destroyQueue.Clear();
         }
 
         private static void ExcecuteSpawnQueue()
@@ -54,7 +60,7 @@ namespace Simulation.Internal
             {
                 EntityManager.Spawn(request);
             }
-
+            
             spawnQueue.Clear();
         }
 
@@ -62,10 +68,11 @@ namespace Simulation.Internal
         {
             foreach (var keyValuePair in compiledHealthChanges)
             {
-                Entity entity = keyValuePair.Key;
-                int amount = keyValuePair.Value;
-
-                EntityManager.HealDamage(entity, amount);
+                EntityManager.HealDamage(new EntityHealDamageDetails()
+                {
+                    entity = keyValuePair.Key,
+                    amount = keyValuePair.Value
+                });
             }
 
             compiledHealthChanges.Clear();

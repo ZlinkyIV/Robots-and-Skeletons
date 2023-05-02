@@ -5,10 +5,6 @@ namespace Simulation.Internal
     /// </summary>
     public class Entity
     {
-        // public void Spawn();
-
-        // public void Destroy();
-
-        // public void HealDamage(int amount);
+        public Behaviors.IEntityBehavior behavior;
     }
 }

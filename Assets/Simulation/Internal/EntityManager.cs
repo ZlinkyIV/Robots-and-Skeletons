@@ -9,58 +9,35 @@ namespace Simulation.Internal
     {
         private static List<Entity> allEntities = new();
 
-        public static void Spawn(SpawnEntityRequest requestArgs)
+        public static void Spawn(EntitySpawnRequest request)
         {
-            Entity newEntity = null;
+            Entity newEntity = new() { behavior = request.behavior};
 
             allEntities.Add(newEntity);
 
-            OnSpawn?.Invoke(new()
+            OnSpawn?.Invoke(new EntitySpawnDetails()
             {
                 entity = newEntity
             });
         }
 
-        public static void Destroy(Entity entity)
+        public static void Destroy(EntityDestroyDetails details)
         {
-            allEntities.Remove(entity);
+            allEntities.Remove(details.entity);
 
-            OnDestroy?.Invoke(new()
-            {
-                entity = entity
-            });
+            OnDestroy?.Invoke(details);
         }
 
-        public static void HealDamage(Entity entity, int amount)
+        public static void HealDamage(EntityHealDamageDetails details)
         {
-            OnHealDamage?.Invoke(new()
-            {
-                entity = entity,
-                amount = amount
-            });
+            OnHealDamage?.Invoke(details);
         }
 
 
         public delegate void EntityEventHandler<TArgs>(TArgs args);
 
-        public static event EntityEventHandler<EntitySpawnArgs> OnSpawn;
-        public static event EntityEventHandler<EntityDestroyArgs> OnDestroy;
-        public static event EntityEventHandler<EntityHealDamageArgs> OnHealDamage;
-    }
-
-    public struct EntitySpawnArgs
-    {
-        public Entity entity;
-    }
-
-    public struct EntityDestroyArgs
-    {
-        public Entity entity;
-    }
-
-    public struct EntityHealDamageArgs
-    {
-        public Entity entity;
-        public int amount;
+        public static event EntityEventHandler<EntitySpawnDetails> OnSpawn;
+        public static event EntityEventHandler<EntityDestroyDetails> OnDestroy;
+        public static event EntityEventHandler<EntityHealDamageDetails> OnHealDamage;
     }
 }
