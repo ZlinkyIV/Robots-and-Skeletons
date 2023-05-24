@@ -29,6 +29,9 @@ namespace Simulation
             };
         }
 
+        /// <summary>
+        ///     <para>Steps the Simulation forward a single frame.</para>
+        /// </summary>
         public static void Step()
         {
             ActionHandler.EnforceChanges();

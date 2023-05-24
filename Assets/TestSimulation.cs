@@ -1,18 +1,30 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Simulation;
 using Simulation.Behaviors;
 
 public class TestSimulation : MonoBehaviour
 {
-    List<Simulation.Internal.Entity> entities = new();
+    [SerializeField] private GameObject testCreaturePrefab;
+
+    Dictionary<Simulation.Internal.Entity, GameObject> entities = new();
+
 
     void Start()
     {
         Facade.Initiate();
 
-        Facade.OnEntitySpawn += (EntitySpawnDetails details) => entities.Add(details.entity);
-        Facade.OnEntityDestroy += (EntityDestroyDetails details) => entities.Remove(details.entity);
+        Facade.OnEntitySpawn += (EntitySpawnDetails details) =>
+        {
+            GameObject newEntity = Instantiate(testCreaturePrefab, Random.insideUnitCircle * Random.Range(1f, 5f), Quaternion.identity);
+            entities.Add(details.entity, newEntity);
+        };
+        Facade.OnEntityDestroy += (EntityDestroyDetails details) =>
+        {
+            Destroy(entities[details.entity]);
+            entities.Remove(details.entity);
+        };
     }
 
     void Update()
@@ -32,17 +44,18 @@ public class TestSimulation : MonoBehaviour
             });
         }
 
-        if (Input.GetKeyDown(KeyCode.Period) && entities.ToArray().Length > 0)
+        if (Input.GetKeyDown(KeyCode.Period) && entities.Keys.Count > 0)
         {
             Debug.Log("Entity Destroy Requested");
 
             Facade.DestroyEntity(new EntityDestroyDetails
             {
-                entity = entities[0]
+                entity = entities.First().Key
             });
         }
     }
 }
+
 
 public class TestEntity : IEntityBehavior
 {
